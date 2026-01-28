@@ -27,13 +27,13 @@ def apply_r(f, g):
        Takes a higher order function g: (A -> B) -> C
        and applies it to the function f: A -> B.
 
-       The result is the fungtion g(f): A -> C.
+       The result is the function g(f): A -> C.
     """
     return lambda *args, **kwargs: g(f)(*args, **kwargs)
 
 
 def chain(*fs):
-    """Chained function appliction (outer-most first)."""
+    """Chained function application (outer-most first)."""
     return functools.reduce(apply_r, fs[::-1])
 
 
@@ -180,13 +180,18 @@ def tree_reduce(*args):
 def assert_contiguous(x):
     return x.contiguous()
 
+from packaging import version
 
 is_torch_tensor = functools.partial(flip(isinstance), torch.Tensor)
 if jnp is not None:
     is_jax_ndarray = functools.partial(flip(isinstance), jnp.ndarray)
 if jax is not None and jax.dlpack is not None:
-    to_torch_tensor = compose(torch.utils.dlpack.from_dlpack, jax.dlpack.to_dlpack)
-    to_jax_ndarray = compose(jax.dlpack.from_dlpack, torch.utils.dlpack.to_dlpack, assert_contiguous)
+    if version.parse(jax.__version__) < version.parse('0.7.0'):
+        to_torch_tensor = compose(torch.utils.dlpack.from_dlpack, jax.dlpack.to_dlpack)
+        to_jax_ndarray = compose(jax.dlpack.from_dlpack, torch.utils.dlpack.to_dlpack, assert_contiguous)
+    else:
+        to_torch_tensor = compose(torch.utils.dlpack.from_dlpack)
+        to_jax_ndarray = compose(jax.dlpack.from_dlpack, assert_contiguous)
 
 
 class JaxWrapper(torch.autograd.Function):

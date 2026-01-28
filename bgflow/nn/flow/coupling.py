@@ -59,7 +59,7 @@ class SplitFlow(Flow):
     def _dlogp(self, x):
         index = [slice(None)] * len(x.shape)
         index[self._split_dim] = slice(1)
-        return torch.zeros_like(x[index])
+        return torch.zeros_like(x[tuple(index)])
 
     def _split_with_sizes(self, x):
         last_size = x.shape[self._split_dim] - sum(self._sizes)
