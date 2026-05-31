@@ -1,6 +1,6 @@
 """Boltzmann Generators and Normalizing Flows in PyTorch"""
 
-# Handle versioneer
+# Handle versioner
 from ._version import get_versions
 versions = get_versions()
 __version__ = versions['version']
